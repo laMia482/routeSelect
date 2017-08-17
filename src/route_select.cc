@@ -174,4 +174,152 @@ float RouteSelect::calDis(std::vector<Node*> &sln)
   return sum;    
 }
 
+
+//*********************************************************************
+//
+//  Dijkstra
+//
+//*********************************************************************
+Dijkstra::Dijkstra(void)
+{
+  bestScore = INI_MAX;
+  m_MinYear = (int)INI_MAX;
+  m_MaxYear = 0;
+  init();
+}
+
+
+Dijkstra::~Dijkstra(void)
+{
+  
+}
+
+void Dijkstra::init()
+{
+  setPurchaseFee(1, 11);  setMaintainFee(1, 5);
+  setPurchaseFee(2, 11);  setMaintainFee(2, 6);
+  setPurchaseFee(3, 12);  setMaintainFee(3, 8);
+  setPurchaseFee(4, 12);  setMaintainFee(4, 11);
+  setPurchaseFee(5, 13);  setMaintainFee(5, 18);
+}
+
+void Dijkstra::setPurchaseFee(int year, float fee)
+{
+  m_PurchaseFee[year] = fee;
+  if(year < m_MinYear)
+    m_MinYear = year;
+  if(year > m_MaxYear)
+    m_MaxYear = year;
+}
+
+void Dijkstra::setMaintainFee(int year, float fee)
+{
+  m_MaintainFee[year] = fee;
+  if(year < m_MinYear)
+    m_MinYear = year;
+  if(year > m_MaxYear)
+    m_MaxYear = year;
+}
+
+void Dijkstra::searchSln(const int &root)
+{
+  curSln.push_back(root);
+  
+  if(root == m_MaxYear)
+  {
+    LOG(INFO) << "End of this route";
+    curScore = calFee(curSln);
+    if(curScore < bestScore)
+    {
+      LOG(INFO) << "swap...";
+      m_BestSln.clear();
+      bestScore = curScore;
+      m_BestSln.push_back(curSln);
+    }
+    else if(curScore == bestScore)
+    {
+      LOG(INFO) << "insert...";
+      m_BestSln.push_back(curSln);
+    }
+    printSln(curSln);
+    curSln.pop_back();
+    return;
+  }
+    
+  for(int i=root;i<m_MaxYear;++i)
+  {
+    searchSln(i+1);
+  }
+  
+  curSln.pop_back();
+  
+}
+
+int Dijkstra::getRoot(void)
+{
+  return m_MinYear;
+}
+
+float Dijkstra::calFee(const std::vector<int> &sln)
+{
+  float sum = 0;
+  int i=0;
+  for(;i<sln.size()-1;++i)
+  {
+    int A = sln[i+0];
+    int B = sln[i+1];
+    // LOG(INFO) << "Add purchase < " << A << ", " << m_PurchaseFee[A] << ">";
+    sum += m_PurchaseFee[A];
+    for(int j=A;j<B;++j)
+    {
+      // LOG(INFO) << "Add maintain < " << j-A+1 << ", " << m_MaintainFee[j-A+1] << ">";
+      sum += m_MaintainFee[j-A+1];
+    }
+  }
+  // LOG(INFO) << "Add maintain < " << m_MaxYear-sln[i-1]+1 << ", " << m_MaintainFee[m_MaxYear-sln[i-1]+1] << ">";
+  sum += m_MaintainFee[m_MaxYear-sln[i-1]+1];
+  return sum;
+}
+
+void Dijkstra::printSln(const std::vector<int> &sln)
+{
+  fprintf(stderr, "fee: %f\tsolution: ", calFee(sln));
+  for(int i=0;i<sln.size();++i)
+  {
+    if(i<sln.size() -1)
+      fprintf(stderr, "%2d -> ", sln[i]);
+    else
+      fprintf(stderr, "%2d\n", sln[i]);
+  }
+}
+
+void Dijkstra::printBest(void)
+{
+  LOG(INFO) << "best score: " << bestScore << "\tbest solution: ";
+  for(int i=0;i<m_BestSln.size();++i)
+    printSln(m_BestSln[i]);
+  
+  /*
+  LOG(INFO) << "Info: purchase fee: ";
+  for(auto it=m_PurchaseFee.begin();it!=m_PurchaseFee.end();++it)
+    LOG(INFO) << "<" << it->first << ", " << it->second << ">";
+  LOG(INFO) << "Info: maintain fee: ";
+  for(auto it=m_MaintainFee.begin();it!=m_MaintainFee.end();++it)
+    LOG(INFO) << "<" << it->first << ", " << it->second << ">";
+  */
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #endif // ! LAMIA_DEFINITION_H_

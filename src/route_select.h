@@ -43,4 +43,42 @@ private:
   std::vector<Node*> bestSln, curSln;
 };
 
+
+typedef std::map<int, float> AtCFee;
+
+class Dijkstra
+{
+public:
+  Dijkstra(void);
+  ~Dijkstra(void);
+  void setPurchaseFee(int, float);
+  void setMaintainFee(int, float);
+  void searchSln(const int &);
+  void printBest(void);
+  int getRoot(void);
+  
+private:
+  void init(void);
+  float calFee(const std::vector<int> &);
+  void printSln(const std::vector<int> &);
+  
+  AtCFee m_MaintainFee;
+  AtCFee m_PurchaseFee;
+  std::vector<int> curSln;
+  std::vector<std::vector<int> > m_BestSln;
+  float bestScore, curScore;
+  int m_MinYear, m_MaxYear;
+};
+
+
+
+
+
+
+
+
+
+
+
+
 #endif // ! LAMIA_DEFINITION_H_
