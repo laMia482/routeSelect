@@ -1,0 +1,7 @@
+solve the problem to select the shortest route from A to E
+
+using RouteSelect::init() to default construct Nodes for example
+
+using RouteSelect::interFeed() to feed the node manually
+
+to be continued to solve more quetions...
